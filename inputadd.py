@@ -65,13 +65,14 @@ class ModifiedDoublyLinkedList:
         for i in node.nextAdd:
             self.printList(i)
 
+
 alphaSet = input()
-MDL = ModifiedDoublyLinkedList(alphaSet)
+MDLL = ModifiedDoublyLinkedList(alphaSet)
 regex_code = input()
 
 for i in regex_code:
-    MDL.addNode(i)
+    MDLL.addNode(i)
 
-MDL.setFinalState()
+MDLL.setFinalState()
 
-MDL.printList(MDL.head)
+MDLL.printList(MDLL.head)
