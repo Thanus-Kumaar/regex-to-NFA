@@ -65,18 +65,10 @@ class ModifiedDoublyLinkedList:
         for i in node.nextAdd:
             self.printList(i)
 
-    def concatenate(self):
-        self.addNode(".")
-
-    def union(self):
-        self.addNode("|")
-
-    def closure(self):
-        self.addNode("*")
-
-
-MDL = ModifiedDoublyLinkedList(alphaSet={'a', 'b', 'c'})
+alphaSet = input()
+MDL = ModifiedDoublyLinkedList(alphaSet)
 regex_code = input()
+
 for i in regex_code:
     MDL.addNode(i)
 
