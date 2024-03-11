@@ -14,8 +14,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 class ModifiedDoublyLinkedList:
-    count = 0
-
+    
     class Node:
         def __init__(self, number, arrow):
             self.isFinal = False
@@ -31,9 +30,11 @@ class ModifiedDoublyLinkedList:
         self.orStack = []
         self.printCompleted = []
         self.alphaSet = alphaSet
+        self.count = 0
 
     def addNode(self, alphabet):
-        ModifiedDoublyLinkedList.count += 1
+        print(alphabet, "After adding: ", self.currPointer)
+        self.count += 1
         if alphabet == "|":
             self.popOrStack()
             new_node = self.Node(ModifiedDoublyLinkedList.count, alphabet)
@@ -46,12 +47,19 @@ class ModifiedDoublyLinkedList:
                 self.pushOrStack(alphabet)
 
             if alphabet == ".":
-                self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, self.alphaSet))
-            elif alphabet == "*":
-                self.currPointer.nextAdd.append(self.currPointer.prev)
+                self.currPointer.nextAdd.append(self.Node(self.count, self.alphaSet))
             else:
-                self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, alphabet))
-            
+                self.currPointer.nextAdd.append(self.Node(self.count, alphabet))
+
+            if alphabet == "*":
+                self.popParanthesisStack(1,alphabet)
+
+            if alphabet == "+":
+                self.popParanthesisStack(1,alphabet)
+
+            if alphabet == "?":
+                self.popParanthesisStack(1, alphabet)
+
             for i in self.currPointer.nextAdd:
                 if i != self.currPointer:
                     i.prev = self.currPointer
@@ -72,14 +80,24 @@ class ModifiedDoublyLinkedList:
             self.orStack.pop()
             self.currPointer = self.currPointer.prev
 
-    def popParanthesisStack(self, stepCount):
-        if stepCount==1:
+    def popParanthesisStack(self, stepCount, alphabet):
+        if stepCount==1 and alphabet == "*":
             self.orStack.pop()
             self.currPointer.nextAdd.append(self.currPointer.prev)
             self.currPointer = self.currPointer.prev
-            self.count+=1
-            self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, "lambda"))
-            self.pushParaStack("lambda")
+            self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
+            self.pushParaStack("ϵ")
+
+        elif stepCount==1 and alphabet == "+":
+            self.orStack.pop()
+            self.currPointer.nextAdd.append(self.currPointer.prev)
+            self.count -= 1
+
+        elif stepCount==1 and alphabet == "?":
+            self.orStack.pop()
+            self.currPointer.nextAdd.append(self.currPointer.prev)
+            self.count -= 1
+            self.pushParaStack("ϵ")
 
     def setFinalState(self):
         self.currPointer.isFinal = True
@@ -93,7 +111,13 @@ class ModifiedDoublyLinkedList:
         for i in node.nextAdd:
             if i not in self.printCompleted:
                 if i.arrowVal == "*":
-                    i.arrowVal = "lambda"
+                    i.arrowVal="ϵ"
+                    i.nodeNumber = i.nodeNumber - 2
+                elif i.arrowVal == "+":
+                    i.arrowVal="ϵ"
+                    i.nodeNumber = i.nodeNumber - 2
+                elif i.arrowVal== "?":
+                    i.arrowVal="ϵ"
                     i.nodeNumber = i.nodeNumber - 1
                 self.printList(i)
 
