@@ -1,7 +1,7 @@
 import modifiedDoublyLinkedList, RegexCheck
 
 alphaSet = input("Enter alphabet set: ")
-MDLL = modifiedDoublyLinkedList(alphaSet)
+MDLL = modifiedDoublyLinkedList.ModifiedDoublyLinkedList(alphaSet)
 regex_code = input("Enter regex expression: ")
 validated_regex_code=RegexCheck.lexical_analysis(regex_code)
 

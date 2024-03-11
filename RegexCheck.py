@@ -41,7 +41,7 @@ def parser(tokens,input_str):
             count+=1
             pass
         elif tokens[i].type == "uni-operators":
-            if i == 0 or tokens[i - 1].type in ["group_start", "binary-operator","uni-operators"]:
+            if i == 0 or tokens[i - 1].type in ["group_start", "binary-operator","uni-operators"] or tokens[i - 1].value == "?":
                 return "Error: Unexpected", tokens[i].value, "at", i
         elif tokens[i].type == "binary-operator":
             if i == 0 or i == len(tokens) - 1 or tokens[i - 1].type in ["group_start", "binary-operator"] or \
