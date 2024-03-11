@@ -25,7 +25,7 @@ class ModifiedDoublyLinkedList:
             self.nextAdd = []
 
     def __init__(self, alphaSet):
-        self.head = self.Node(0, "start")
+        self.head = self.Node(0, "ϵ")
         self.currPointer = self.head
         self.paranthesisStack = []
         self.orStack = []
@@ -39,15 +39,16 @@ class ModifiedDoublyLinkedList:
         self.count += 1
         if alphabet == "|":
             self.popOrStack()
-            new_node = self.Node(self.count, alphabet)
+            new_node = self.Node(self.count, "ϵ")
             self.currPointer.nextAdd.append(new_node)
             new_node.prev = self.currPointer
             self.currPointer = new_node
+            self.pushOrStack("ϵ")
         else:
-            self.pushParaStack(alphabet)
-            if alphabet != "(" or alphabet != ")":
-                self.pushOrStack(alphabet)
-
+            if alphabet!="*" and alphabet!="+" and alphabet!="?":
+                self.pushParaStack(alphabet)
+                if alphabet != "(" or alphabet != ")":
+                    self.pushOrStack(alphabet)
             if alphabet == ".":
                 self.currPointer.nextAdd.append(self.Node(self.count, self.alphaSet))                
             elif alphabet == "*":
@@ -56,18 +57,48 @@ class ModifiedDoublyLinkedList:
                 self.popParanthesisStack(1,alphabet)
             elif alphabet == "?":
                 self.popParanthesisStack(1, alphabet)
+            elif alphabet=="(" or alphabet==")":
+                pass
             else:
                 self.currPointer.nextAdd.append(self.Node(self.count,alphabet))
 
-            for i in self.currPointer.nextAdd:
-                if i != self.currPointer:
-                    i.prev = self.currPointer
+            if(alphabet not in "()"):
+                for i in self.currPointer.nextAdd:
+                    if i != self.currPointer:
+                        i.prev = self.currPointer
 
-            if len(self.currPointer.nextAdd) == 1:
-                self.currPointer = self.currPointer.nextAdd[0]
-            else:
-                self.currPointer = self.currPointer.nextAdd[-1]
+                if len(self.currPointer.nextAdd) == 1:
+                    self.currPointer = self.currPointer.nextAdd[0]
+                else:
+                    self.currPointer = self.currPointer.nextAdd[-1]
 
+    def addNodeForParanthesis(self):
+        print("*********",self.paranthesisStack)
+        savedNode = self.currPointer
+        popped = self.paranthesisStack.pop()
+        paracount = 0
+        while(self.paranthesisStack!=[] and not(popped == "(" and paracount==1 )):
+            print("PPPP",popped)
+            if(popped == ")"):
+                paracount+=1
+            if(popped == "("):
+                paracount-=1
+            if(popped not in "()"):
+                self.currPointer = self.currPointer.prev
+            popped = self.paranthesisStack.pop()
+        savedNode.nextAdd.append(self.currPointer)
+        self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
+        self.pushParaStack("ϵ")
+        for i in self.currPointer.nextAdd:
+            if i != self.currPointer:
+                i.prev = self.currPointer
+
+        if len(self.currPointer.nextAdd) == 1:
+            self.currPointer = self.currPointer.nextAdd[0]
+        else:
+            self.currPointer = self.currPointer.nextAdd[-1]
+        
+            
     def pushOrStack(self, data):
         self.orStack.append(data)
 
@@ -81,20 +112,20 @@ class ModifiedDoublyLinkedList:
 
     def popParanthesisStack(self, stepCount, alphabet):
         if stepCount==1 and alphabet == "*":
-            self.orStack.pop()
-            self.currPointer.nextAdd.append(self.currPointer.prev)
-            self.currPointer = self.currPointer.prev
-            print("HOLA")
-            self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
-            self.pushParaStack("ϵ")
+            popped = self.paranthesisStack.pop()
+            if(popped not in "()"):
+                self.currPointer.nextAdd.append(self.currPointer.prev)
+                self.currPointer = self.currPointer.prev
+                print("HOLA")
+                self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
+                self.pushParaStack("ϵ")
 
         elif stepCount==1 and alphabet == "+":
-            self.orStack.pop()
+            self.paranthesisStack.pop()
             self.currPointer.nextAdd.append(self.currPointer.prev)
-            self.count -= 1
 
         elif stepCount==1 and alphabet == "?":
-            self.orStack.pop()
+            self.paranthesisStack.pop()
             savedNode = self.currPointer
             self.currPointer = self.currPointer.prev
             self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
