@@ -10,6 +10,8 @@ A modified doubly linked list, which can store multiple next elements
 - Variable for storing previous address/node
 
 '''
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class ModifiedDoublyLinkedList:
     count = 0
@@ -31,10 +33,13 @@ class ModifiedDoublyLinkedList:
         self.alphaSet = alphaSet
 
     def addNode(self, alphabet):
-        print(alphabet, "After adding: ", self.currPointer)
         ModifiedDoublyLinkedList.count += 1
         if alphabet == "|":
             self.popOrStack()
+            new_node = self.Node(ModifiedDoublyLinkedList.count, alphabet)
+            self.currPointer.nextAdd.append(new_node)
+            new_node.prev = self.currPointer
+            self.currPointer = new_node
         else:
             self.pushParaStack(alphabet)
             if alphabet != "(" or alphabet != ")":
@@ -42,22 +47,19 @@ class ModifiedDoublyLinkedList:
 
             if alphabet == ".":
                 self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, self.alphaSet))
+            elif alphabet == "*":
+                self.currPointer.nextAdd.append(self.currPointer.prev)
             else:
                 self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, alphabet))
-
-            if alphabet == "*":
-                self.popParanthesisStack(1)
             
-
             for i in self.currPointer.nextAdd:
-                i.prev = self.currPointer
+                if i != self.currPointer:
+                    i.prev = self.currPointer
 
             if len(self.currPointer.nextAdd) == 1:
                 self.currPointer = self.currPointer.nextAdd[0]
             else:
                 self.currPointer = self.currPointer.nextAdd[-1]
-
-        print("Before adding: ", self.currPointer)
 
     def pushOrStack(self, data):
         self.orStack.append(data)
@@ -70,7 +72,7 @@ class ModifiedDoublyLinkedList:
             self.orStack.pop()
             self.currPointer = self.currPointer.prev
 
-    def popParanthesisStack(self,stepCount):
+    def popParanthesisStack(self, stepCount):
         if stepCount==1:
             self.orStack.pop()
             self.currPointer.nextAdd.append(self.currPointer.prev)
@@ -95,7 +97,24 @@ class ModifiedDoublyLinkedList:
                     i.nodeNumber = i.nodeNumber - 1
                 self.printList(i)
 
-    
-    def star(self,prevalp):
-        if prevalp != ")":
-            self.popParanthesisStack(1)
+    def constructGraph(self, node, graph, visited):
+        if node in visited:
+            return
+        visited.add(node)
+        graph.add_node(node.nodeNumber, label=node.arrowVal)
+        if node.nextAdd == []:
+            return
+        for i in node.nextAdd:
+            if i != node.prev:  # Avoid creating a loop edge for the predecessor
+                graph.add_edge(node.nodeNumber, i.nodeNumber, label=i.arrowVal)
+            self.constructGraph(i, graph, visited)
+
+    def visualizeGraph(self):
+        graph = nx.DiGraph()
+        visited = set()
+        self.constructGraph(self.head, graph, visited)
+        pos = nx.spring_layout(graph)
+        labels = nx.get_edge_attributes(graph, 'label')
+        nx.draw(graph, pos, with_labels=True, arrows=True)
+        nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
+        plt.show()
