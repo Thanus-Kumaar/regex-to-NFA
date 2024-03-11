@@ -27,6 +27,7 @@ class ModifiedDoublyLinkedList:
         self.currPointer = self.head
         self.paranthesisStack = []
         self.orStack = []
+        self.printCompleted = []
         self.alphaSet = alphaSet
 
     def addNode(self, alphabet):
@@ -43,6 +44,10 @@ class ModifiedDoublyLinkedList:
                 self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, self.alphaSet))
             else:
                 self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, alphabet))
+
+            if alphabet == "*":
+                self.popParanthesisStack(1)
+
             for i in self.currPointer.nextAdd:
                 i.prev = self.currPointer
 
@@ -64,17 +69,31 @@ class ModifiedDoublyLinkedList:
             self.orStack.pop()
             self.currPointer = self.currPointer.prev
 
-    def popParanthesisStack(self):
-        pass
+    def popParanthesisStack(self,stepCount):
+        if stepCount==1:
+            self.orStack.pop()
+            self.currPointer.nextAdd.append(self.currPointer.prev)
+            self.currPointer = self.currPointer.prev
+            self.count+=1
+            self.currPointer.nextAdd.append(self.Node(ModifiedDoublyLinkedList.count, "lambda"))
+            self.pushParaStack("lambda")
 
     def setFinalState(self):
         self.currPointer.isFinal = True
 
     def printList(self, node):
-        print(node.nodeNumber, node.arrowVal, node, node.nextAdd, sep="\n")
+        print(node.nodeNumber, node.arrowVal, sep="\t")
         print()
+        self.printCompleted.append(node)
         if node.nextAdd == []:
             return
         for i in node.nextAdd:
-            self.printList(i)
+            if i not in self.printCompleted:
+                if i.arrowVal == "*":
+                    i.arrowVal = "lambda"
+                self.printList(i)
 
+    
+    def star(self,prevalp):
+        if prevalp != ")":
+            self.popParanthesisStack(1)
