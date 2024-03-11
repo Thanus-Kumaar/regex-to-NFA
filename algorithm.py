@@ -1,7 +1,6 @@
 import modifiedDoublyLinkedList, RegexCheck
 
-alphabets = input("Enter alphabets: ")
-alphaset = set(alphabets)
+alphaset = input("Enter alphabets: ")
 
 MDLL = modifiedDoublyLinkedList.ModifiedDoublyLinkedList(alphaset)
 regex_code = input("Enter regex expression: ")
@@ -14,8 +13,8 @@ if validated_regex_code == regex_code :
         print(MDLL.orStack,MDLL.paranthesisStack)
 
     MDLL.setFinalState()
-
-    MDLL.visualizeGraph()
+    MDLL.generate_graph()
+    MDLL.visualize_graph()
 
 else:
     print(validated_regex_code)

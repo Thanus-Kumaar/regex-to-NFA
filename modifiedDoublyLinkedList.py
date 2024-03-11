@@ -17,6 +17,7 @@ class ModifiedDoublyLinkedList:
     
     class Node:
         def __init__(self, number, arrow):
+            print("###",arrow)
             self.isFinal = False
             self.nodeNumber = number
             self.arrowVal = arrow
@@ -31,13 +32,14 @@ class ModifiedDoublyLinkedList:
         self.printCompleted = []
         self.alphaSet = alphaSet
         self.count = 0
+        self.graph = nx.MultiDiGraph()
 
     def addNode(self, alphabet):
         print(alphabet, "After adding: ", self.currPointer)
         self.count += 1
         if alphabet == "|":
             self.popOrStack()
-            new_node = self.Node(ModifiedDoublyLinkedList.count, alphabet)
+            new_node = self.Node(self.count, alphabet)
             self.currPointer.nextAdd.append(new_node)
             new_node.prev = self.currPointer
             self.currPointer = new_node
@@ -47,18 +49,15 @@ class ModifiedDoublyLinkedList:
                 self.pushOrStack(alphabet)
 
             if alphabet == ".":
-                self.currPointer.nextAdd.append(self.Node(self.count, self.alphaSet))
-            else:
-                self.currPointer.nextAdd.append(self.Node(self.count, alphabet))
-
-            if alphabet == "*":
+                self.currPointer.nextAdd.append(self.Node(self.count, self.alphaSet))                
+            elif alphabet == "*":
                 self.popParanthesisStack(1,alphabet)
-
-            if alphabet == "+":
+            elif alphabet == "+":
                 self.popParanthesisStack(1,alphabet)
-
-            if alphabet == "?":
+            elif alphabet == "?":
                 self.popParanthesisStack(1, alphabet)
+            else:
+                self.currPointer.nextAdd.append(self.Node(self.count,alphabet))
 
             for i in self.currPointer.nextAdd:
                 if i != self.currPointer:
@@ -85,6 +84,7 @@ class ModifiedDoublyLinkedList:
             self.orStack.pop()
             self.currPointer.nextAdd.append(self.currPointer.prev)
             self.currPointer = self.currPointer.prev
+            print("HOLA")
             self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
             self.pushParaStack("ϵ")
 
@@ -95,8 +95,10 @@ class ModifiedDoublyLinkedList:
 
         elif stepCount==1 and alphabet == "?":
             self.orStack.pop()
-            self.currPointer.nextAdd.append(self.currPointer.prev)
-            self.count -= 1
+            savedNode = self.currPointer
+            self.currPointer = self.currPointer.prev
+            self.currPointer.nextAdd.append(self.Node(self.count, "ϵ"))
+            savedNode.nextAdd.append(self.currPointer.nextAdd[-1])
             self.pushParaStack("ϵ")
 
     def setFinalState(self):
@@ -121,24 +123,36 @@ class ModifiedDoublyLinkedList:
                     i.nodeNumber = i.nodeNumber - 1
                 self.printList(i)
 
-    def constructGraph(self, node, graph, visited):
+    def generate_graph(self):
+        self._generate_graph_helper(self.head, set())
+
+    def _generate_graph_helper(self, node, visited):
         if node in visited:
             return
         visited.add(node)
-        graph.add_node(node.nodeNumber, label=node.arrowVal)
-        if node.nextAdd == []:
-            return
-        for i in node.nextAdd:
-            if i != node.prev:  # Avoid creating a loop edge for the predecessor
-                graph.add_edge(node.nodeNumber, i.nodeNumber, label=i.arrowVal)
-            self.constructGraph(i, graph, visited)
+        self.graph.add_node(node.nodeNumber)
+        for next_node in node.nextAdd:
+            self.graph.add_edge(node.nodeNumber, next_node.nodeNumber, label=next_node.arrowVal)
+            self._generate_graph_helper(next_node, visited)
 
-    def visualizeGraph(self):
-        graph = nx.DiGraph()
-        visited = set()
-        self.constructGraph(self.head, graph, visited)
-        pos = nx.spring_layout(graph)
-        labels = nx.get_edge_attributes(graph, 'label')
-        nx.draw(graph, pos, with_labels=True, arrows=True)
-        nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
+
+    def visualize_graph(self):
+        pos = nx.spring_layout(self.graph)
+        nx.draw(self.graph, pos, with_labels=True, node_size=1000, node_color='skyblue', font_size=12, font_weight='bold')
+        edge_labels = {}
+        for u, v, data in self.graph.edges(data=True):
+            if (u, v) not in edge_labels:
+                edge_labels[(u, v)] = []
+            edge_labels[(u, v)].append(data['label'])
+
+        for (u, v), labels in edge_labels.items():
+            # string = ""
+            # if(type(labels)==set):
+            #     for i in labels[0]:
+            #         string = string + 
+            print(labels)
+            label = ','.join(labels)
+            print(label)
+            nx.draw_networkx_edge_labels(self.graph, pos, edge_labels={(u, v): label})
         plt.show()
+
