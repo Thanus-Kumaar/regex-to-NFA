@@ -47,6 +47,7 @@ class ModifiedDoublyLinkedList:
 
             if alphabet == "*":
                 self.popParanthesisStack(1)
+            
 
             for i in self.currPointer.nextAdd:
                 i.prev = self.currPointer
@@ -91,6 +92,7 @@ class ModifiedDoublyLinkedList:
             if i not in self.printCompleted:
                 if i.arrowVal == "*":
                     i.arrowVal = "lambda"
+                    i.nodeNumber = i.nodeNumber - 1
                 self.printList(i)
 
     
