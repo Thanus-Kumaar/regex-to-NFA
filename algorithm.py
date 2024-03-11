@@ -1,9 +1,11 @@
 import modifiedDoublyLinkedList, RegexCheck
 
-alphaSet = input("Enter alphabet set: ")
-MDLL = modifiedDoublyLinkedList.ModifiedDoublyLinkedList(alphaSet)
+alphabets = input("Enter alphabets: ")
+alphaset = set(alphabets)
+
+MDLL = modifiedDoublyLinkedList.ModifiedDoublyLinkedList(alphaset)
 regex_code = input("Enter regex expression: ")
-validated_regex_code=RegexCheck.lexical_analysis(regex_code)
+validated_regex_code = RegexCheck.lexical_analysis(regex_code)
 
 if validated_regex_code == regex_code :
     for i in regex_code:
@@ -14,5 +16,4 @@ if validated_regex_code == regex_code :
     MDLL.printList(MDLL.head)
 
 else:
-
     print(validated_regex_code)
